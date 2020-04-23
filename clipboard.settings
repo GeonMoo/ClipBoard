@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<settings>
+  <localSettings>
+    <laptop-ht4p8qm5>
+      <setting name="MaxCopyTextLength">10000</setting>
+      <setting name="ContentFile">
+      </setting>
+      <setting name="UseShiftKey">false</setting>
+      <setting name="MaxItemsInFrequentList">10</setting>
+      <setting name="UseCtrlKey">true</setting>
+      <setting name="HotKey">Space</setting>
+      <setting name="RunOnStartup">False</setting>
+      <setting name="StartMinimized">false</setting>
+      <setting name="UseAltKey">false</setting>
+      <setting name="UseWindowsKey">false</setting>
+    </laptop-ht4p8qm5>
+  </localSettings>
+</settings>

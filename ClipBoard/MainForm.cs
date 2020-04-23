@@ -34,12 +34,14 @@ namespace ClipBoard
             _settings.SettingsSaving += SettingsSaving;
             _listController = new ClipBoardListController(_settings);
             this.MouseDown += new MouseEventHandler(Form_MouseDown);
-            this.labelClipBoardManager.MouseDown += new MouseEventHandler(Form_MouseDown);
+            this.labelCopyCollector.MouseDown += new MouseEventHandler(Form_MouseDown);
             _ClipboardViewerNext = ClipBoard.Win32Hooks.SetClipboardViewer(this.Handle);
             maxCopyTextLength = _settings.MaxCopyTextLength;
             HandleStartupSetting(_settings.RunOnStartup);
             keyboardHook = new Hook("Global Action Hook");
             keyboardHook.KeyDownEvent += KeyDownHandler;
+            // Always the top most
+            this.TopMost = true;
 
             if (_settings.StartMinimized)
             {
@@ -126,7 +128,8 @@ namespace ClipBoard
                     new ListViewItem(new string[] { (i++).ToString(),
                                                     s.CoppiedCount.ToString(),
                                                     s.PastedCount.ToString(),
-                                                    s.Content
+                                                    s.Content,
+                                                    s.Resource
                                                   });
                 list.Items.Add(lvi);
                 list.Groups[0].Items.Add(lvi);
@@ -140,7 +143,8 @@ namespace ClipBoard
                     new ListViewItem(new string[] { (i++).ToString(),
                                                     s.CoppiedCount.ToString(),
                                                     s.PastedCount.ToString(),
-                                                    s.Content
+                                                    s.Content,
+                                                    s.Resource
                                                   });
 
                 list.Items.Add(lvi);
@@ -154,7 +158,8 @@ namespace ClipBoard
                     new ListViewItem(new string[] { (i++).ToString(),
                                                     s.CoppiedCount.ToString(),
                                                     s.PastedCount.ToString(),
-                                                    s.Content
+                                                    s.Content,
+                                                    s.Resource
                                                   });
                 list.Items.Add(lvi);
                 list.Groups[2].Items.Add(lvi);
@@ -184,7 +189,7 @@ namespace ClipBoard
             }
 
             Region = System.Drawing.Region.FromHrgn(Win32Hooks.CreateRoundRectRgn(0, 0, Width, Height, 20, 20));
-            linkLabelGitHub.Top = listView.Top + listView.Height + 5;
+            // linkLabelGitHub.Top = listView.Top + listView.Height + 5;
 
         }
 
@@ -204,7 +209,8 @@ namespace ClipBoard
 
             //bring to front if not
             this.TopMost = true;
-            this.TopMost = false;
+            // always the Topmost
+            // this.TopMost = false;
 
             resizeForm();
         }
@@ -259,7 +265,7 @@ namespace ClipBoard
             copyTextToClipBoard();
 
             //hide after text copied to clipboard
-            hideScreen();
+            //hideScreen();
 
             // paste to curreMonkey talk font cursor
             await Task.Delay(500);
@@ -275,8 +281,9 @@ namespace ClipBoard
                 Log.Verbose().Write("Copy text to clipboard");
                 int index = this.list.SelectedIndices[0];
                 string content = this.list.Items[index].SubItems[3].Text;
-                updateList();
-
+                // updating causes the lost of focus
+                // updateList();
+                
                 Clipboard.SetText(content);
             }
         }
@@ -298,7 +305,8 @@ namespace ClipBoard
             }
             else if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                copyTextToClipboardAndPaste();
+                // copyTextToClipboardAndPaste();
+                copyTextToClipBoard();
             }
         }
 
@@ -427,7 +435,7 @@ namespace ClipBoard
 
         private void linkLabelGitHub_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            System.Diagnostics.Process.Start(linkLabelGitHub.Text);
+            // System.Diagnostics.Process.Start(linkLabelGitHub.Text);
         }
 
         private void labelMinimize_Click(object sender, MouseEventArgs e)
@@ -441,6 +449,16 @@ namespace ClipBoard
                 var configurator = new ClipBoardConfigurator(_settings, true);
                 configurator.ShowDialog();
             }
+        }
+
+        private void LabelClipBoardManager_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void LabelMinimize_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ClipBoard
@@ -14,6 +16,42 @@ namespace ClipBoard
         private ClipBoardUserSettings _settings;
         private static int _maxCopyTextLength;
         private static readonly LogSource Log = new LogSource();
+
+        // Add resorce listener
+        [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+        public static extern int GetForegroundWindow();
+
+        [StructLayout(LayoutKind.Sequential)]//定义与API相兼容结构体，实际上是一种内存转换
+        public struct POINTAPI
+        {
+            public int X;
+            public int Y;
+        }
+
+        [DllImport("user32.dll", EntryPoint = "GetCursorPos")]//获取鼠标坐标
+        public static extern int GetCursorPos(
+            ref POINTAPI lpPoint
+        );
+
+        [DllImport("user32.dll", EntryPoint = "WindowFromPoint")]//指定坐标处窗体句柄
+        public static extern int WindowFromPoint(
+            int xPoint,
+            int yPoint
+        );
+
+        [DllImport("user32.dll", EntryPoint = "GetWindowText")]
+        public static extern int GetWindowText(
+            int hWnd,
+            StringBuilder lpString,
+            int nMaxCount
+        );
+
+        [DllImport("user32.dll", EntryPoint = "GetClassName")]
+        public static extern int GetClassName(
+            int hWnd,
+            StringBuilder lpString,
+            int nMaxCont
+        );
 
         public ClipBoardListController(ClipBoardUserSettings SettingsProvider)
         {
@@ -48,6 +86,18 @@ namespace ClipBoard
         // Add either new record or increment existing record counter
         public void AddClipBoardRecord(string content)
         {
+            POINTAPI point = new POINTAPI();// 必须用与之相兼容的结构体，类也可以                      
+            Thread.Sleep(8000);  //add some wait time
+            GetCursorPos(ref point);// 获取当前鼠标坐标
+            int handle = WindowFromPoint(point.X, point.Y);// 获取指定坐标处窗口的句柄
+
+            // Record the resource from the acitivated window title
+            StringBuilder rsc = new StringBuilder(256);
+            // int handle = GetForegroundWindow();
+            GetWindowText(handle, rsc, 256);
+            string resource = rsc.ToString();
+            // MessageBox.Show(name.ToString());
+
             Log.Verbose().Write("Add content to clipboard.");
             ClipBoardRecord rec;
 
@@ -59,7 +109,7 @@ namespace ClipBoard
                 if (rec == null) // this is a new content
                 {
                     // add a new record to the list
-                    rec = new ClipBoardRecord(content, 1, 0);
+                    rec = new ClipBoardRecord(content, resource, 1, 0);
                     _recentItems.Insert(0, rec);
                 }
                 else
